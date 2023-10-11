@@ -12,8 +12,8 @@ import {
 } from 'chart.js';
 
 import css from './caloriesChart.module.css';
-
-const _ = require('lodash');
+import zeroUpdate from 'components/Functions/zeroUpdate';
+import monthData from 'components/Functions/monthData';
 
 ChartJS.register(
   LineElement,
@@ -26,8 +26,10 @@ ChartJS.register(
 export default function CaloriesChart({ showMonth }) {
   const { graph } = useSelector(selectCharts);
 
-  const labels = graph.days;
-  const data = graph.calories;
+  const caloriesData = monthData(graph.days, graph.calories);
+
+  const labels = caloriesData.days;
+  const data = caloriesData.data;
   let caption = 'K';
 
   const datasets = [
@@ -50,7 +52,6 @@ export default function CaloriesChart({ showMonth }) {
 
   const options = {
     responsive: true,
-    // maintainAspectRatio: false,
     scales: {
       y: {
         min: 0,
@@ -98,9 +99,8 @@ export default function CaloriesChart({ showMonth }) {
         cornerRadius: 8,
         caretSize: 0,
         padding: 10,
-        // backgroundShadowColor: 'rgba(227, 255, 168, 0.1)',
-        // borderColor: 'rgba(227, 255, 168, 0.1)',
-        // borderWidth: 3,
+        borderColor: 'rgba(227, 255, 168, 0.1)',
+        borderWidth: 3,
         backgroundColor: '#0f0f0f',
         titleFont: {
           weight: 'bold',
@@ -127,12 +127,6 @@ export default function CaloriesChart({ showMonth }) {
     },
   };
 
-  const processedData = data.filter(item => {
-    return item > 0;
-  });
-
-  const average = Math.round(_.mean(processedData));
-
   const dataOne = {
     labels,
     datasets,
@@ -143,7 +137,8 @@ export default function CaloriesChart({ showMonth }) {
       <div className={css.caloriesTitle}>
         <p className={css.chartTitle}>Calories</p>
         <p className={css.chartSubtitle}>
-          Average value: <span className={css.average}>{average} cal</span>
+          Average value:
+          <span className={css.average}>{zeroUpdate(data)} cal</span>
         </p>
       </div>
       <div className={css.chart}>
